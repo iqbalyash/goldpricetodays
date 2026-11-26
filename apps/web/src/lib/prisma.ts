@@ -13,13 +13,12 @@ export function getPrisma(): PrismaClient {
     throw new Error("DATABASE_URL is not set");
   }
 
+  // One client and one pg connection per Worker isolate. DATABASE_URL should be a
+  // pooled Postgres URL (Supabase transaction pooler, port 6543), not the direct port.
   const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString }),
+    adapter: new PrismaPg({ connectionString, max: 1 }),
   });
-
-  if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.prisma = prisma;
-  }
+  globalForPrisma.prisma = prisma;
 
   return prisma;
 }
