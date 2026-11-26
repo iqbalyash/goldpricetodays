@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// A bullion market country. Tax and duty are editable seed defaults, not a live statutory feed.
+model Country {
+  id                 String              @id @default(cuid())
+  slug               String              @unique
+  name               String
+  currencyCode       String
+  currencySymbol     String
+  defaultTaxPercent  Decimal             @db.Decimal(6, 3)
+  defaultDutyPercent Decimal             @db.Decimal(6, 3)
+  usesTola           Boolean
+  cities             City[]
+  snapshots          GoldPriceSnapshot[]
+}
+
+model City {
+  id                  String              @id @default(cuid())
+  slug                String
+  name                String
+  countryId           String
+  country             Country             @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  localPremiumPercent Decimal             @db.Decimal(6, 3)
+  marketTimings       String
+  localDescription    String
+  snapshots           GoldPriceSnapshot[]
+
+  @@unique([countryId, slug])
+  @@index([countryId])
+}
+
+/// Latest quote for a country average (`cityId` null) or one city.
+/// `scopeKey` is the upsert key: "{countryId}:country" or "{countryId}:{cityId}".
+/// Postgres treats nulls as distinct, so a compound unique on countryId + cityId cannot enforce one country-wide row.
+model GoldPriceSnapshot {
+  id               String   @id @default(cuid())
+  scopeKey         String   @unique
+  countryId        String
+  country          Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  cityId           String?
+  city             City?    @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  price24kGram     Decimal  @db.Decimal(18, 4)
+  price22kGram     Decimal  @db.Decimal(18, 4)
+  price21kGram     Decimal  @db.Decimal(18, 4)
+  price18kGram     Decimal  @db.Decimal(18, 4)
+  price24kTola     Decimal  @db.Decimal(18, 4)
+  price22kTola     Decimal  @db.Decimal(18, 4)
+  price24kOunce    Decimal  @db.Decimal(18, 4)
+  change24hPercent Decimal  @db.Decimal(10, 4)
+  updatedAt        DateTime @updatedAt
+
+  @@index([countryId])
+  @@index([cityId])
+}
