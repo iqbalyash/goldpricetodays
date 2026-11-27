@@ -6,8 +6,6 @@ import type { NextConfig } from "next";
 const appDir = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
-  cacheComponents: true,
-  partialPrefetching: true,
   output: "standalone",
   outputFileTracingRoot: path.join(appDir, "../.."),
   transpilePackages: ["@goldpricetodays/shared"],

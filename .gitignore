@@ -1,5 +1,6 @@
 node_modules/
 .turbo/
+.wrangler/
 .DS_Store
 *.log
 .env

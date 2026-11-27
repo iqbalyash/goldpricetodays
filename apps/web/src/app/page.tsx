@@ -1,4 +1,3 @@
-import { cacheLife, cacheTag } from "next/cache";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { formatCurrency, formatSignedPercent } from "@goldpricetodays/shared";
@@ -24,10 +23,6 @@ const KARAT_ROWS = [
 ] as const;
 
 export default async function HomePage() {
-  "use cache";
-  cacheLife({ stale: 900, revalidate: 900, expire: 86400 });
-  cacheTag("gold-rates");
-
   const data = await loadHomepageData();
   const worldwide = data.worldwide;
   const updatedIso = data.snapshotUpdatedAt ?? data.spotUpdatedAt;

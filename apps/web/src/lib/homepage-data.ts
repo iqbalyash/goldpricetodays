@@ -1,4 +1,3 @@
-import { cacheLife, cacheTag } from "next/cache";
 import {
   TOLA_GRAMS,
   TROY_OUNCE_GRAMS,
@@ -130,10 +129,6 @@ export interface PricingContext {
 }
 
 export async function loadPricingContext(): Promise<PricingContext> {
-  "use cache";
-  cacheLife({ stale: 900, revalidate: 900, expire: 86400 });
-  cacheTag("gold-rates");
-
   const [gold, silver, fx, stored, history] = await Promise.all([
     fetchSpot("XAU"),
     fetchSpot("XAG"),
